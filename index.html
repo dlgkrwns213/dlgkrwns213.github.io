@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graph Editor</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="overlay" v-if="isProcessing"></div>
+
+      <div class="header">
+        Graph Editor
+        <button class="button" @click="clickBFSButton(false)">bfs1</button>
+        <button class="button" @click="clickBFSButton(true)">bfs2</button>
+        <button class="button" @click="clickDFSButton()">dfs</button>
+        <button class="button" @click="clickDijkstraButton()">dijkstra</button>
+      </div>
+
+      <div class="back-button" @click.stop="cancelUserDone">
+        <i class="fa-solid fa-backward-step" style="color: white"></i>
+      </div>
+
+      <div
+        class="back-button"
+        style="right: 10px"
+        @click.stop="cancelAllUserDone"
+      >
+        <i class="fa-solid fa-backward-fast" style="color: white"></i>
+      </div>
+
+      <svg
+        width="100%"
+        height="100%"
+        style="position: absolute; top: 100px; left: 0"
+        @click="handleClick"
+        @contextmenu.prevent="handleMouseDown($event)"
+      >
+        <line
+          v-for="(line, index) in lines"
+          :key="index"
+          :x1="line.x1"
+          :y1="line.y1-100"
+          :x2="line.x2"
+          :y2="line.y2-100"
+          stroke="white"
+          stroke-width="2"
+        />
+        <line
+          v-if="currentLine"
+          :x1="currentLine.x1"
+          :y1="currentLine.y1-100"
+          :x2="currentLine.x2"
+          :y2="currentLine.y2-100"
+          stroke="white"
+          stroke-width="2"
+          stroke-dasharray="5,5"
+        />
+      </svg>
+
+      <div
+        v-for="(node, index) in inputFields"
+        :key="index"
+        :style="{ 
+        left: (node.x-10) + 'px', 
+        top: node.y + 'px', 
+        position: 'absolute' 
+        }"
+        class="input-field"
+      >
+        <input
+          v-model="node.value"
+          placeholder="Enter Value"
+          @keyup.enter="updateGraphConnection(index, $event)"
+        />
+      </div>
+
+      <div
+        v-for="(node, index) in nodes"
+        :key="index"
+        class="node"
+        :style="{ left: node.x + 'px', top: node.y + 'px' }"
+        @click.stop="connectNode(index, $event)"
+        @contextmenu.prevent="handleMouseDown($event)"
+        :class="{
+          'node-selecting': nodeSelecting.includes(index+1),
+          'node-selected': nodeSelected.includes(index+1)
+        }"
+      >
+        {{ index + 1 }}
+
+        <div
+          v-if="!isNaN(nodeOrders[index])"
+          :style="{
+            position: 'relative', 
+            left: 20 + 'px', 
+            top: 20 + 'px',
+            color: 'red',
+            fontSize: '10px'
+          }"
+        >
+          {{ nodeOrders[index] }}
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./js/app.mjs"></script>
+  </body>
+</html>
